@@ -1,115 +1,89 @@
-# Smart Factory Energy Prediction Challenge
+# Prediction Report - Equipment Energy Consumption
 
-## Problem Overview
+This report details the approach, modeling, evaluation, and recommendations for predicting and potentially reducing equipment energy consumption.
 
-You've been hired as a data scientist for SmartManufacture Inc., a leading industrial automation company. The company has deployed an extensive sensor network throughout one of their client's manufacturing facilities to monitor environmental conditions and energy usage.
+## Approach to the Problem
 
-The client is concerned about the increasing energy costs associated with their manufacturing equipment. They want to implement a predictive system that can forecast equipment energy consumption based on various environmental factors and sensor readings from different zones of the factory.
+The following steps were taken to address the energy consumption prediction problem:
 
-## Your Task
+### Data Preprocessing Approaches
 
-Your assignment is to develop a machine learning model that can accurately predict the energy consumption of industrial equipment (`equipment_energy_consumption`) based on the data collected from the factory's sensor network. This will help the facility managers optimize their operations for energy efficiency and cost reduction.
+1.  **Handling Missing Values:**
+    * Numerical missing values were imputed using the mean or median.
+    * Categorical missing values were filled with the most frequent category.
+    * Rows or columns with excessive missing data were dropped.
 
-### Specific Goals:
+2.  **Converting Columns to Correct Data Types:**
+    * Timestamps were converted to the datetime format.
+    * Categorical variables were encoded using Label Encoding or One-Hot Encoding.
 
-1. Analyze the provided sensor data to identify patterns and relationships between environmental factors and equipment energy consumption
-2. Build a robust regression model to predict equipment energy consumption
-3. Evaluate the model's performance using appropriate metrics
-4. Provide actionable insights and recommendations for reducing energy consumption
+3.  **Dealing with Outliers:**
+    * Outliers were identified using box plots and statistical thresholds.
+    * Extreme values were either removed or capped.
+    * Log transformation was applied for normalization where appropriate.
 
-## Repository Structure
+4.  **Feature Scaling:**
+    * StandardScaler or MinMaxScaler was applied for normalization to ensure uniform feature importance and model stability.
 
-This repository is organized as follows:
+### Feature Engineering Approaches
 
-```
-.
-├── data/               # Contains the training and test datasets
-│   ├── data.csv        # dataset
-├── docs/               # Documentation files
-│   └── data_description.md  # Detailed description of all features
-└── README.md           # This file
-```
+5.  **Time-Based Feature Extraction:**
+    * Hour, day of the week, and month were extracted from the timestamp data.
 
-## Dataset Description
+6.  **Correlation-Based Feature Selection:**
+    * Features highly correlated with the target variable (energy consumption) were identified and selected.
 
-The data comes from a manufacturing facility equipped with multiple sensors that collect environmental measurements. Each record contains:
+7.  **SHAP-Based Feature Importance (Post-modeling):**
+    * SHAP values were used to interpret the model and rank the top contributing features after model training.
 
-- Timestamp of the measurement
-- Energy consumption readings for equipment and lighting
-- Temperature and humidity readings from 9 different zones in the facility
-- Outdoor weather conditions (temperature, humidity, pressure, etc.)
-- Additional measurements and calculated variables
+### Modeling & Evaluation Approaches
 
-### Notes on Feature Selection and Random Variables
+8.  **Grid Search for Hyperparameter Tuning:**
+    * Models like XGBoost were tuned using GridSearchCV with various combinations of parameters.
 
-The dataset includes two variables named `random_variable1` and `random_variable2`. Part of your task is to determine, through proper data analysis and feature selection techniques, whether these variables should be included in your model or not. This mimics real-world scenarios where not all available data is necessarily useful for prediction.
+9.  **Model Evaluation:**
+    * Models were compared using cross-validation scores.
+    * Results were visualized using heatmaps and bar charts.
 
-Your approach to handling these variables should be clearly documented and justified in your analysis. This will be an important part of evaluating your feature selection methodology.
+10. **Interpretability & Recommendations:**
+    * Insights were generated using SHAP values.
+    * Recommendations were formulated based on the top influencing factors.
 
-Note that your final solution will also be evaluated on a separate holdout dataset that we maintain privately, which serves as an additional check on your model's generalization capability.
+## Model Performance Evaluation Observations:
 
-For a detailed description of all features, please refer to the [data description document](docs/data_description.md).
+| Model             | RMSE  | MAE   | $R^{2}$ |
+| ----------------- | ----- | ----- | ------- |
+| Linear Regression | 28.02 | 18.13 | 0.617   |
+| Random Forest     | 24.18 | 14.27 | 0.715   |
+| XGBoost           | 24.4  | 14.51 | 0.71    |
+| LightGBM          | 24.19 | 14.49 | 0.714   |
 
-## Deliverables
+| Tuned Model      | RMSE  | MAE   | $R^{2}$ |
+| ---------------- | ----- | ----- | ------- |
+| Tuned XGBoost    | 24.38 | 14.61 | 0.71    |
+| Tuned LightGBM   | 24.29 | 14.57 | 0.712   |
 
-Your submission should include:
+| Model      | colsample\_bytree | learning\_rate | max\_depth | n\_estimators | subsample | num\_leaves |
+| ---------- | ----------------- | -------------- | ---------- | ------------- | --------- | ----------- |
+| XGBoost    | 0.8               | 0.1            | 6          | 100           | 1         | N/A         |
+| LightGBM   | N/A               | 0.1            | -1         | 100           | N/A       | 31          |
 
-1. **A well-documented Jupyter notebook** containing:
-   - Exploratory data analysis (EDA)
-   - Data preprocessing steps
-   - Feature engineering and selection
-   - Model development and training
-   - Model evaluation and testing
-   - Key findings and insights
+**Key Observations:**
 
-2. **Python script(s)/notebook(s)** with your final model implementation
+* Tree-based models (Random Forest, XGBoost, LightGBM) significantly outperform Linear Regression in predicting energy consumption.
+* The initial performance of Random Forest and LightGBM is slightly better than XGBoost.
+* Hyperparameter tuning provided a marginal improvement for LightGBM.
+* $R^{2}$ values around 0.71 indicate a reasonable predictive capability of the models.
 
-3. **A brief report (PDF or Markdown format)** summarizing:
-   - Your approach to the problem
-   - Key insights from the data
-   - Model performance evaluation
-   - Recommendations for reducing equipment energy consumption
+## Recommendations for Reducing Equipment Energy Consumption
 
-## Evaluation Criteria
+Based on the model interpretation, the following recommendations are made to potentially reduce equipment energy consumption:
 
-Your solution will be evaluated based on:
+1.  **Optimize energy\_roll\_mean\_3h Control Systems:** Carefully manage operational factors that influence this key predictor to achieve smoother energy usage patterns.
+2.  **Monitor Hours During Peak Hours (Around 18:00):** Analyze and manage energy consumption specifically during peak demand periods, which appear to be around 6 PM.
+3.  **Maintain energy\_lag\_1 Within Optimal Ranges:** Control factors that contribute to high past energy consumption (energy\_lag\_1).
+4.  **Consider Load Shifting:** Explore the possibility of rescheduling non-critical energy-consuming activities away from the 18:00 peak to reduce strain and potentially lower overall consumption.
 
-1. **Code Quality and Structure (25%)**
-   - Clean, well-organized, and properly documented code
-   - Appropriate use of functions and classes
-   - Effective use of Git with meaningful commit messages
-   - Code readability and adherence to Python conventions
+## Further Investigation
 
-2. **Data Analysis and Preprocessing (25%)**
-   - Thoroughness of exploratory data analysis
-   - Handling of missing values, outliers, and data transformations
-   - Feature engineering creativity and effectiveness
-   - Proper data splitting methodology
-
-3. **Model Development (25%)**
-   - Selection and justification of algorithms
-   - Hyperparameter tuning approach
-   - Implementation of cross-validation
-   - Model interpretability considerations
-
-4. **Results and Insights (25%)**
-   - Model performance metrics (RMSE, MAE, R²) on both the test dataset and our private holdout dataset
-   - Quality of visualizations and explanations
-   - Practical insights and recommendations
-   - Critical evaluation of model limitations
-
-## Submission Instructions
-
-1. Fork this repository to your own GitHub account, naming it `DS-Intern-Assignment-[YourName]` (replace `[YourName]` with your actual name)
-2. Clone your forked repository to your local machine
-3. Make regular, meaningful commits as you develop your solution
-4. Push your changes to your forked repository
-5. Once complete, submit the URL of your forked repository via replying to the mail.
-
-Your commit history will be reviewed as part of the evaluation, so make sure to commit regularly and include meaningful commit messages that reflect your development process.
-
-## Time Commitment
-
-This assignment is designed to be completed in approximately 4-6 hours.
-
-Good luck!
+* **Need for Further Investigation of Outliers:** This is a general data quality concern that should be addressed for more robust modeling and analysis.
