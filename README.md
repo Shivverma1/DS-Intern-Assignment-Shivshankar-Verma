@@ -101,6 +101,4 @@ Based on the model interpretation, the following recommendations are made to pot
 3.  **Maintain energy\_lag\_1 Within Optimal Ranges:** Control factors leading to high past energy consumption. [cite: 32]
 4.  **Consider Load Shifting:** Reschedule non-critical energy use away from the 18:00 peak. [cite: 33]
 
-##   Further Investigation
 
-* Need for Further Investigation of Outliers: (General data quality concern). [cite: 23]
