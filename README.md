@@ -84,6 +84,3 @@ Based on the model interpretation, the following recommendations are made to pot
 3.  **Maintain energy\_lag\_1 Within Optimal Ranges:** Control factors that contribute to high past energy consumption (energy\_lag\_1).
 4.  **Consider Load Shifting:** Explore the possibility of rescheduling non-critical energy-consuming activities away from the 18:00 peak to reduce strain and potentially lower overall consumption.
 
-## Further Investigation
-
-* **Need for Further Investigation of Outliers:** This is a general data quality concern that should be addressed for more robust modeling and analysis.
